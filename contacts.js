@@ -23,11 +23,14 @@ async function listContacts() {
 
 async function getContactById(contactId) {
   try {
+    const idNormalize = Number(contactId);
     const contacts = await getContacts();
-    if (!contactId) {
+    if (!idNormalize) {
       throw new Error(`This contact is not found`);
     }
-    const selectContact = contacts.find((contact) => contact.id === contactId);
+    const selectContact = contacts.find(
+      (contact) => contact.id === idNormalize
+    );
     console.log(selectContact);
     return selectContact;
   } catch (error) {
@@ -38,8 +41,9 @@ async function getContactById(contactId) {
 async function removeContact(contactId) {
   try {
     const contacts = await getContacts();
+    const idNormalize = Number(contactId);
     const filteredContacts = contacts.filter(
-      (contact) => contact.id !== contactId
+      (contact) => contact.id !== idNormalize
     );
     await fs.writeFile(contactsPath, JSON.stringify(filteredContacts));
     console.table(filteredContacts);
