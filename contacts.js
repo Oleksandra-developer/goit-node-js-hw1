@@ -4,13 +4,18 @@ const { v4: uuidv4 } = require("uuid");
 
 const contactsPath = path.join(__dirname, "db/contacts.json");
 
+async function getContacts() {
+  const allContacts = await fs.readFile(contactsPath);
+  const contacts = JSON.parse(allContacts);
+  return contacts;
+}
+
 // TODO: задокументировать каждую функцию
 async function listContacts() {
   try {
-    const allContacts = await fs.readFile(contactsPath);
-    const contacts = JSON.parse(allContacts);
+    const contacts = await getContacts();
     console.table(contacts);
-    return contacts;
+    // return contacts;
   } catch (error) {
     console.log(error.message);
   }
@@ -18,7 +23,7 @@ async function listContacts() {
 
 async function getContactById(contactId) {
   try {
-    const contacts = await listContacts();
+    const contacts = await getContacts();
     if (!contactId) {
       throw new Error(`This contact is not found`);
     }
@@ -32,7 +37,7 @@ async function getContactById(contactId) {
 
 async function removeContact(contactId) {
   try {
-    const contacts = await listContacts();
+    const contacts = await getContacts();
     const filteredContacts = contacts.filter(
       (contact) => contact.id !== contactId
     );
@@ -46,7 +51,7 @@ async function removeContact(contactId) {
 
 async function addContact(name, email, phone) {
   try {
-    const contacts = await listContacts();
+    const contacts = await getContacts();
     const newContact = {
       id: uuidv4(),
       name,
@@ -54,13 +59,15 @@ async function addContact(name, email, phone) {
       phone,
     };
     contacts.push(newContact);
+    const contactsString = JSON.stringify(contacts);
+    await fs.writeFile(contactsPath, contactsString);
     console.table(contacts);
     return contacts;
   } catch (error) {
     throw console.error(error.message);
   }
 }
-addContact("Fanny", "113", "444444");
+
 module.exports = {
   listContacts,
   getContactById,
